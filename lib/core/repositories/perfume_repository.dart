@@ -1,6 +1,6 @@
-import 'package:app_perfumes/repositories/opinion_repository.dart';
-import 'package:app_perfumes/models/perfume.dart';
-import 'package:app_perfumes/repositories/perfumes_database.dart';
+import 'package:app_perfumes/core/repositories/opinion_repository.dart';
+import 'package:app_perfumes/core/models/perfume.dart';
+import 'package:app_perfumes/core/repositories/perfumes_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 

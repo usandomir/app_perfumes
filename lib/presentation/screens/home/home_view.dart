@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-import 'package:app_perfumes/models/perfume.dart';
-import 'package:app_perfumes/utils/currency_formatter.dart';
-import 'package:app_perfumes/viewmodels/perfume_view_model.dart';
-import 'package:app_perfumes/widgets/drawer_menu.dart';
+import 'package:app_perfumes/core/models/perfume.dart';
+import 'package:app_perfumes/core/utils/currency_formatter.dart';
+import 'package:app_perfumes/presentation/viewmodels/perfume_view_model.dart';
+import 'package:app_perfumes/presentation/widgets/drawer_menu.dart';
 
 final vistaSettingsProvider = StateProvider<String>((ref) => 'Grilla');
 final currencyProvider = StateProvider<String>((ref) => CurrencyFormatter.usd);

@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:app_perfumes/utils/currency_formatter.dart';
-import 'package:app_perfumes/models/opinion.dart';
-import 'package:app_perfumes/viewmodels/opinion_view_model.dart';
-import 'package:app_perfumes/models/perfume.dart';
-import 'package:app_perfumes/views/home/home_view.dart';
+import 'package:app_perfumes/core/utils/currency_formatter.dart';
+import 'package:app_perfumes/core/models/opinion.dart';
+import 'package:app_perfumes/presentation/viewmodels/opinion_view_model.dart';
+import 'package:app_perfumes/core/models/perfume.dart';
+import 'package:app_perfumes/presentation/screens/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

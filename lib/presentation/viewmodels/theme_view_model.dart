@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:app_perfumes/config/theme/app_theme.dart';
+import 'package:app_perfumes/core/config/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -1,7 +1,9 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app_perfumes/config/theme/app_theme.dart';
-import 'package:app_perfumes/viewmodels/theme_view_model.dart';
+import 'package:app_perfumes/core/config/theme/app_theme.dart';
+import 'package:app_perfumes/presentation/viewmodels/theme_view_model.dart';
 
 class ThemeSelectionScreen extends ConsumerWidget {
   static const name = 'theme_selection_screen';
@@ -15,7 +17,7 @@ class ThemeSelectionScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Theme Selection'),
+          title: const Text('Seleccion de tema'),
           actions: [
             IconButton(
               onPressed: () {
@@ -59,7 +61,7 @@ class _ColorSelectionView extends ConsumerWidget {
             style: TextStyle(color: colors[index], fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            '#${colors[index].value.toRadixString(16).toUpperCase()}',
+            '#${colors[index].toARGB32().toRadixString(16).toUpperCase()}',
           ),
           activeColor: colors[index],
           value: index,

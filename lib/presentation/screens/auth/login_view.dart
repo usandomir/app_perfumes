@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:app_perfumes/viewmodels/user_view_model.dart';
-import 'package:app_perfumes/models/user.dart';
-import 'package:app_perfumes/viewmodels/theme_view_model.dart';
+import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
+import 'package:app_perfumes/core/models/user.dart';
+import 'package:app_perfumes/presentation/viewmodels/theme_view_model.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -31,11 +31,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final String pass = _inputPass.text.trim();
 
     if (name.isEmpty) {
-      _showErrorSnackBar('El campo de usuario está incompleto');
+      _showErrorSnackBar('El campo de usuario esta incompleto');
       return;
     }
     if (pass.isEmpty) {
-      _showErrorSnackBar('La contraseña está incompleta');
+      _showErrorSnackBar('La contrasena esta incompleta');
       return;
     }
 
@@ -48,6 +48,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (userFound != null) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('usuarioLogueado', userFound.name);
+
+      if (!mounted) return;
+
       FocusScope.of(context).unfocus();
       Future.microtask(() {
         if (mounted) {
@@ -55,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       });
     } else {
-      _showErrorSnackBar('Usuario o contraseña incorrectos');
+      _showErrorSnackBar('Usuario o contrasena incorrectos');
     }
   }
 
@@ -87,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Iniciar sesión',
+                    'Iniciar sesion',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -132,14 +135,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 20),
                   TextField(
                     controller: _inputPass,
-                    obscureText: _isObscure, // Acá se aplica el estado
+                    obscureText: _isObscure,
                     style: TextStyle(
                       color: isDarkMode ? Colors.white : Colors.black87,
                     ),
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: isDarkMode ? Colors.grey[800] : Colors.white,
-                      hintText: 'Contraseña',
+                      hintText: 'Contrasena',
                       hintStyle: TextStyle(
                         color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                       ),
@@ -177,8 +180,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Botón Ingresar
                   ElevatedButton(
                     onPressed: _handleLogin,
                     style: ElevatedButton.styleFrom(
@@ -200,8 +201,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
 
                   const SizedBox(height: 20),
-
-                  // Botón Registrarse
                   ElevatedButton(
                     onPressed: () {
                       context.push('/register');

@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:app_perfumes/viewmodels/perfume_view_model.dart';
-import 'package:app_perfumes/models/perfume.dart';
+import 'package:app_perfumes/presentation/viewmodels/perfume_view_model.dart';
+import 'package:app_perfumes/core/models/perfume.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

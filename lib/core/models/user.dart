@@ -15,14 +15,6 @@ class User {
     this.profileImage,
   });
 
-  void printUser() {
-    print('User: $name, Email: $email, Age: $age, Image: $profileImage');
-  }
-
-  String greet() {
-    return 'Hello my name is $name';
-  }
-
   Map<String, dynamic> toMap() {
     return {
       'id': id,

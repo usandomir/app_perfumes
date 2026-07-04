@@ -1,5 +1,5 @@
-import 'package:app_perfumes/models/user.dart';
-import 'package:app_perfumes/repositories/user_repository.dart';
+import 'package:app_perfumes/core/models/user.dart';
+import 'package:app_perfumes/core/repositories/user_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final userViewModelProvider = Provider<UserViewModel>((ref) {

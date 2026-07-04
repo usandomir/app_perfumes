@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:app_perfumes/models/user.dart';
+import 'package:app_perfumes/core/models/user.dart';
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository();

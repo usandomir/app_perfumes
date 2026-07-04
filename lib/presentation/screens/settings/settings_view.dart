@@ -1,7 +1,7 @@
-import 'package:app_perfumes/config/theme/app_theme.dart';
-import 'package:app_perfumes/utils/currency_formatter.dart';
-import 'package:app_perfumes/viewmodels/theme_view_model.dart';
-import 'package:app_perfumes/views/home/home_view.dart';
+import 'package:app_perfumes/core/config/theme/app_theme.dart';
+import 'package:app_perfumes/core/utils/currency_formatter.dart';
+import 'package:app_perfumes/presentation/viewmodels/theme_view_model.dart';
+import 'package:app_perfumes/presentation/screens/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -77,7 +77,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF12151C) : Colors.grey[200],
       appBar: AppBar(
-        title: const Text('Configuración'),
+        title: const Text('Configuracion'),
         backgroundColor: colorDinamico,
         foregroundColor: Colors.white,
         leading: IconButton(
@@ -119,7 +119,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const Padding(
                     padding: EdgeInsets.only(top: 8.0, bottom: 16.0),
                     child: Text(
-                      'Ajustes de la aplicación',
+                      'Ajustes de la aplicacion',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -154,7 +154,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       } else if (index == 1) {
                         return ListTile(
                           leading: Icon(Icons.grid_view, color: colorDinamico),
-                          title: const Text('Visualización del catálogo'),
+                          title: const Text('Visualizacion del catalogo'),
                           trailing: _buildDropdownMenu(
                             value: _vistaSeleccionada,
                             items: _vistas,
@@ -172,7 +172,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             Icons.palette_outlined,
                             color: colorDinamico,
                           ),
-                          title: const Text('Color temático'),
+                          title: const Text('Color tematico'),
                           trailing: _buildDropdownMenu(
                             value: selectedColorIndex.toString(),
                             items: List.generate(

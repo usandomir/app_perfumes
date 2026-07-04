@@ -1,5 +1,5 @@
-import 'package:app_perfumes/models/opinion.dart';
-import 'package:app_perfumes/repositories/perfumes_database.dart';
+import 'package:app_perfumes/core/models/opinion.dart';
+import 'package:app_perfumes/core/repositories/perfumes_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final opinionRepositoryProvider = Provider<OpinionRepository>((ref) {

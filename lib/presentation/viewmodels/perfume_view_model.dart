@@ -1,5 +1,5 @@
-import 'package:app_perfumes/models/perfume.dart';
-import 'package:app_perfumes/repositories/perfume_repository.dart';
+import 'package:app_perfumes/core/models/perfume.dart';
+import 'package:app_perfumes/core/repositories/perfume_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final perfumeViewModelProvider = Provider<PerfumeViewModel>((ref) {

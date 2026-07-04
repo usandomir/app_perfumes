@@ -1,4 +1,4 @@
-import 'package:app_perfumes/models/opinion.dart';
+import 'package:app_perfumes/core/models/opinion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
