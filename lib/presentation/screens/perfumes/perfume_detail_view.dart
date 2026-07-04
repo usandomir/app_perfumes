@@ -130,6 +130,48 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     );
   }
 
+  Widget _buildImagenPerfume(ColorScheme colorScheme) {
+    final foto = widget.perfume.fotoPath;
+    if (foto == null || foto.isEmpty) {
+      return _buildPlaceholderImagen(colorScheme);
+    }
+    if (foto.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Image.network(
+          foto,
+          height: 180,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    if (File(foto).existsSync()) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Image.file(
+          File(foto),
+          height: 180,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    return _buildPlaceholderImagen(colorScheme);
+  }
+
+  Widget _buildPlaceholderImagen(ColorScheme colorScheme) {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Icon(Icons.blur_on, size: 60, color: Colors.grey),
+    );
+  }
+
   Widget _buildDescripcionPage(ColorScheme colorScheme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -145,28 +187,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          if (widget.perfume.fotoPath != null &&
-              widget.perfume.fotoPath!.isNotEmpty &&
-              File(widget.perfume.fotoPath!).existsSync())
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.file(
-                File(widget.perfume.fotoPath!),
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.blur_on, size: 60, color: Colors.grey),
-            ),
+          _buildImagenPerfume(colorScheme),
           const SizedBox(height: 24),
           Text(
             widget.perfume.nombre,

@@ -20,7 +20,7 @@ class PerfumeViewModel {
     return _repository.obtenerPerfumesPorUsuario(nombreUsuario);
   }
 
-  Future<int> guardarPerfume({
+  Future<String> guardarPerfume({
     required Perfume perfume,
     required String nombreUsuario,
     required bool esEdicion,
@@ -28,12 +28,12 @@ class PerfumeViewModel {
     if (esEdicion) {
       return _repository
           .actualizarPerfume(perfume, nombreUsuario)
-          .then((_) => perfume.id ?? 0);
+          .then((_) => perfume.id ?? '');
     }
     return _repository.registrarPerfume(perfume, nombreUsuario);
   }
 
-  Future<void> eliminarPerfume(int id, String nombreUsuario) {
+  Future<void> eliminarPerfume(String id, String nombreUsuario) {
     return _repository.eliminarPerfume(id, nombreUsuario);
   }
 }

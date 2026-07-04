@@ -93,6 +93,13 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
     return null;
   }
 
+  ImageProvider? _imagenSeleccionada() {
+    final foto = _fotoSeleccionadaPath;
+    if (foto == null || foto.isEmpty) return null;
+    if (foto.startsWith('http')) return NetworkImage(foto);
+    return FileImage(File(foto));
+  }
+
   void _seleccionarFoto() {
     showModalBottomSheet(
       context: context,
@@ -187,9 +194,7 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
                     CircleAvatar(
                       radius: 60,
                       backgroundColor: cs.surfaceContainerHighest,
-                      backgroundImage: _fotoSeleccionadaPath != null
-                          ? FileImage(File(_fotoSeleccionadaPath!))
-                          : null,
+                      backgroundImage: _imagenSeleccionada(),
                       child: _fotoSeleccionadaPath == null
                           ? const Icon(Icons.image, size: 40)
                           : null,

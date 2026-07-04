@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:app_perfumes/core/models/user.dart';
+import 'package:app_perfumes/core/repositories/storage_repository.dart';
 import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,13 +20,13 @@ class PerfilScreen extends ConsumerStatefulWidget {
 class _PerfilScreenState extends ConsumerState<PerfilScreen> {
   final _emailController = TextEditingController();
   final _ageController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _picker = ImagePicker();
 
   late TextEditingController _usernameController;
   User? _usuario;
-  File? _imageFile;
+  String? _imagenSeleccionada;
   bool _cargando = true;
+  bool _guardando = false;
 
   @override
   void initState() {
@@ -39,7 +40,6 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     _usernameController.dispose();
     _emailController.dispose();
     _ageController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -56,9 +56,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
         _usernameController.text = usuario.name;
         _emailController.text = usuario.email;
         _ageController.text = usuario.age.toString();
-        if (usuario.profileImage != null && usuario.profileImage!.isNotEmpty) {
-          _imageFile = File(usuario.profileImage!);
-        }
+        _imagenSeleccionada = usuario.profileImage;
       }
     });
   }
@@ -66,7 +64,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
   Future<void> _seleccionarImagen(ImageSource source) async {
     final image = await _picker.pickImage(source: source);
     if (image == null || !mounted) return;
-    setState(() => _imageFile = File(image.path));
+    setState(() => _imagenSeleccionada = image.path);
   }
 
   void _mostrarSelectorImagen() {
@@ -99,27 +97,43 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
 
   Future<void> _guardarCambios() async {
     final usuarioActual = _usuario;
-    if (usuarioActual == null) return;
+    if (usuarioActual == null || _guardando) return;
 
-    final edad = int.tryParse(_ageController.text.trim()) ?? usuarioActual.age;
-    final usuarioActualizado = User(
-      id: usuarioActual.id,
-      name: _usernameController.text.trim(),
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim().isEmpty
-          ? usuarioActual.password
-          : _passwordController.text.trim(),
-      age: edad,
-      profileImage: _imageFile?.path,
-    );
+    setState(() => _guardando = true);
+    try {
+      final fotoUrl = await ref
+          .read(storageRepositoryProvider)
+          .subirImagen(
+            pathLocal: _imagenSeleccionada,
+            carpeta: 'perfiles',
+            nombreArchivo: usuarioActual.id,
+          );
+      final edad =
+          int.tryParse(_ageController.text.trim()) ?? usuarioActual.age;
+      final usuarioActualizado = User(
+        id: usuarioActual.id,
+        name: _usernameController.text.trim(),
+        email: _emailController.text.trim(),
+        age: edad,
+        profileImage: fotoUrl,
+      );
 
-    await ref.read(userViewModelProvider).actualizar(usuarioActualizado);
+      await ref.read(userViewModelProvider).actualizar(usuarioActualizado);
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Cambios guardados')));
-    context.go('/home/${usuarioActualizado.name}');
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Cambios guardados')));
+      context.go('/home/${usuarioActualizado.name}');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo guardar el perfil: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _guardando = false);
+    }
   }
 
   Future<void> _eliminarPerfil() async {
@@ -149,6 +163,13 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
 
     if (!mounted) return;
     context.go('/login');
+  }
+
+  ImageProvider? _imagenPerfil() {
+    final imagen = _imagenSeleccionada;
+    if (imagen == null || imagen.isEmpty) return null;
+    if (imagen.startsWith('http')) return NetworkImage(imagen);
+    return FileImage(File(imagen));
   }
 
   @override
@@ -187,10 +208,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                 CircleAvatar(
                   radius: 64,
                   backgroundColor: colorScheme.surfaceContainerHighest,
-                  backgroundImage: _imageFile != null
-                      ? FileImage(_imageFile!)
-                      : null,
-                  child: _imageFile == null
+                  backgroundImage: _imagenPerfil(),
+                  child: _imagenPerfil() == null
                       ? Icon(Icons.person, size: 56, color: colorScheme.primary)
                       : null,
                 ),
@@ -222,19 +241,19 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
               icon: Icons.cake,
               keyboardType: TextInputType.number,
             ),
-            _buildTextField(
-              controller: _passwordController,
-              label: 'Nueva contrasena',
-              icon: Icons.lock,
-              obscureText: true,
-            ),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: _guardarCambios,
-                child: const Text('Guardar cambios'),
+                onPressed: _guardando ? null : _guardarCambios,
+                child: _guardando
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Guardar cambios'),
               ),
             ),
             const SizedBox(height: 12),
@@ -266,14 +285,12 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     required String label,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
-    bool obscureText = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),

@@ -103,7 +103,7 @@ class PerfumesDatabase {
       await db.insert(
         'opiniones',
         Opinion(
-          perfumeId: id,
+          perfumeId: id.toString(),
           usuario: perfume['usuario_dueno']?.toString() ?? 'marco',
           comentario: comentario,
           puntuacion: 5,

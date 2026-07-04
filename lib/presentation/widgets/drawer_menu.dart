@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
 
 class MiNavigationDrawer extends ConsumerWidget {
   final String nombreUsuario;
@@ -39,6 +39,7 @@ class MiNavigationDrawer extends ConsumerWidget {
 
           _buildDrawerItem(
             context: context,
+            ref: ref,
             icon: Icons.home_outlined,
             label: 'Inicio',
             route: '/home/$nombreUsuario',
@@ -46,6 +47,7 @@ class MiNavigationDrawer extends ConsumerWidget {
           ),
           _buildDrawerItem(
             context: context,
+            ref: ref,
             icon: Icons.person_outline,
             label: 'Perfil',
             route: '/perfil',
@@ -53,6 +55,7 @@ class MiNavigationDrawer extends ConsumerWidget {
           ),
           _buildDrawerItem(
             context: context,
+            ref: ref,
             icon: Icons.settings_outlined,
             label: 'Configuracion',
             route: '/settings/$nombreUsuario',
@@ -69,6 +72,7 @@ class MiNavigationDrawer extends ConsumerWidget {
 
           _buildDrawerItem(
             context: context,
+            ref: ref,
             icon: Icons.logout_outlined,
             label: 'Cerrar sesion',
             route: '/login',
@@ -82,6 +86,7 @@ class MiNavigationDrawer extends ConsumerWidget {
 
   Widget _buildDrawerItem({
     required BuildContext context,
+    required WidgetRef ref,
     required IconData icon,
     required String label,
     required String route,
@@ -117,8 +122,7 @@ class MiNavigationDrawer extends ConsumerWidget {
           Navigator.of(context).pop();
 
           if (isLogout) {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.remove('usuarioLogueado');
+            await ref.read(userViewModelProvider).cerrarSesion();
 
             if (context.mounted) {
               context.go('/login');

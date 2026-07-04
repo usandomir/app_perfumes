@@ -1,6 +1,6 @@
 class Opinion {
-  int? id;
-  int perfumeId;
+  String? id;
+  String perfumeId;
   String usuario;
   String comentario;
   int puntuacion;
@@ -17,7 +17,6 @@ class Opinion {
 
   Map<String, dynamic> toMap() {
     return {
-      if (id != null) 'id': id,
       'perfume_id': perfumeId,
       'usuario': usuario,
       'comentario': comentario,
@@ -28,8 +27,8 @@ class Opinion {
 
   factory Opinion.fromMap(Map<String, dynamic> map) {
     return Opinion(
-      id: map['id'] as int?,
-      perfumeId: map['perfume_id'] as int? ?? 0,
+      id: map['id']?.toString(),
+      perfumeId: map['perfume_id']?.toString() ?? '',
       usuario: map['usuario'] ?? '',
       comentario: map['comentario'] ?? '',
       puntuacion: map['puntuacion'] as int? ?? 0,

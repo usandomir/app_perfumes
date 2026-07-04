@@ -1,5 +1,5 @@
 class Perfume {
-  int? id;
+  String? id;
   String nombre;
   String disenador;
   int duracionHoras;
@@ -21,7 +21,6 @@ class Perfume {
 
   Map<String, dynamic> toMap() {
     return {
-      if (id != null) 'id': id,
       'nombre': nombre,
       'disenador': disenador,
       'duracion_horas': duracionHoras,
@@ -34,7 +33,7 @@ class Perfume {
 
   factory Perfume.fromMap(Map<String, dynamic> map) {
     return Perfume(
-      id: map['id'] as int?,
+      id: map['id']?.toString(),
       nombre: map['nombre'] ?? '',
       disenador: map['disenador'] ?? '',
       duracionHoras: map['duracion_horas'] as int? ?? 0,

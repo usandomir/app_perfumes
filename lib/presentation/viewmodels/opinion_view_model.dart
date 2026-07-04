@@ -6,18 +6,17 @@ final opinionViewModelProvider = Provider<OpinionViewModel>((ref) {
   return OpinionViewModel(ref.read(opinionRepositoryProvider));
 });
 
-final opinionesProvider = FutureProvider.autoDispose.family<List<Opinion>, int>(
-  (ref, perfumeId) async {
-    return ref.read(opinionViewModelProvider).obtenerOpiniones(perfumeId);
-  },
-);
+final opinionesProvider = FutureProvider.autoDispose
+    .family<List<Opinion>, String>((ref, perfumeId) async {
+      return ref.read(opinionViewModelProvider).obtenerOpiniones(perfumeId);
+    });
 
 class OpinionViewModel {
   final OpinionRepository _repository;
 
   OpinionViewModel(this._repository);
 
-  Future<List<Opinion>> obtenerOpiniones(int perfumeId) {
+  Future<List<Opinion>> obtenerOpiniones(String perfumeId) {
     return _repository.obtenerOpinionesPorPerfume(perfumeId);
   }
 
@@ -25,7 +24,7 @@ class OpinionViewModel {
     return _repository.registrarOpinion(opinion);
   }
 
-  Future<void> eliminarOpinion(int id) {
+  Future<void> eliminarOpinion(String id) {
     return _repository.eliminarOpinion(id);
   }
 }

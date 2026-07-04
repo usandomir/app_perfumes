@@ -1,10 +1,9 @@
+import 'package:app_perfumes/core/models/user.dart';
+import 'package:app_perfumes/presentation/viewmodels/theme_view_model.dart';
+import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
-import 'package:app_perfumes/core/models/user.dart';
-import 'package:app_perfumes/presentation/viewmodels/theme_view_model.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -14,24 +13,25 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _inputName = TextEditingController();
+  final _inputEmail = TextEditingController();
   final _inputPass = TextEditingController();
 
   bool _isObscure = true;
+  bool _cargando = false;
 
   @override
   void dispose() {
-    _inputName.dispose();
+    _inputEmail.dispose();
     _inputPass.dispose();
     super.dispose();
   }
 
-  void _handleLogin() async {
-    final String name = _inputName.text.trim();
-    final String pass = _inputPass.text.trim();
+  Future<void> _handleLogin() async {
+    final email = _inputEmail.text.trim();
+    final pass = _inputPass.text.trim();
 
-    if (name.isEmpty) {
-      _showErrorSnackBar('El campo de usuario esta incompleto');
+    if (email.isEmpty || !email.contains('@')) {
+      _showErrorSnackBar('Ingresa un email valido');
       return;
     }
     if (pass.isEmpty) {
@@ -39,26 +39,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    final User? userFound = await ref
-        .read(userViewModelProvider)
-        .autenticar(name, pass);
+    await _ejecutarAutenticacion(() {
+      return ref.read(userViewModelProvider).autenticar(email, pass);
+    });
+  }
 
-    if (!mounted) return;
+  Future<void> _handleGoogleLogin() async {
+    await _ejecutarAutenticacion(() {
+      return ref.read(userViewModelProvider).autenticarConGoogle();
+    });
+  }
 
-    if (userFound != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('usuarioLogueado', userFound.name);
+  Future<void> _ejecutarAutenticacion(Future<User?> Function() accion) async {
+    if (_cargando) return;
+    setState(() => _cargando = true);
 
+    try {
+      final userFound = await accion();
       if (!mounted) return;
 
-      FocusScope.of(context).unfocus();
-      Future.microtask(() {
-        if (mounted) {
-          context.pushReplacement('/home/${userFound.name}');
-        }
-      });
-    } else {
-      _showErrorSnackBar('Usuario o contrasena incorrectos');
+      if (userFound != null) {
+        FocusScope.of(context).unfocus();
+        context.pushReplacement('/home/${userFound.name}');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar(e.toString().replaceFirst('Exception: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _cargando = false);
     }
   }
 
@@ -99,19 +108,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 40),
                   TextField(
-                    controller: _inputName,
+                    controller: _inputEmail,
+                    keyboardType: TextInputType.emailAddress,
                     style: TextStyle(
                       color: isDarkMode ? Colors.white : Colors.black87,
                     ),
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: isDarkMode ? Colors.grey[800] : Colors.white,
-                      hintText: 'Usuario',
+                      hintText: 'Email',
                       hintStyle: TextStyle(
                         color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                       ),
                       prefixIcon: Icon(
-                        Icons.person_outline,
+                        Icons.email_outlined,
                         color: colorDinamico,
                       ),
                       border: OutlineInputBorder(
@@ -181,7 +191,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(
-                    onPressed: _handleLogin,
+                    onPressed: _cargando ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colorDinamico,
                       foregroundColor: Colors.white,
@@ -191,20 +201,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
-                      'Ingresar',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: _cargando
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Ingresar',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: _cargando ? null : _handleGoogleLogin,
+                    icon: const Icon(Icons.login),
+                    label: const Text('Ingresar con Google'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(220, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      context.push('/register');
-                    },
+                    onPressed: _cargando
+                        ? null
+                        : () => context.push('/register'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDarkMode
                           ? Colors.grey[800]
@@ -223,9 +250,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Registrarse',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),

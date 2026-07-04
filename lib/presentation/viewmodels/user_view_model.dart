@@ -15,12 +15,20 @@ class UserViewModel {
     return _repository.obtenerUsuarioPorNombre(name);
   }
 
-  Future<User?> autenticar(String name, String password) {
-    return _repository.autenticarUsuario(name, password);
+  Future<User?> autenticar(String email, String password) {
+    return _repository.autenticarUsuario(email, password);
   }
 
-  Future<void> registrar(User usuario) {
-    return _repository.registrarUsuario(usuario);
+  Future<User> autenticarConGoogle() {
+    return _repository.autenticarConGoogle();
+  }
+
+  Future<void> cerrarSesion() {
+    return _repository.cerrarSesion();
+  }
+
+  Future<void> registrar(User usuario, String password) {
+    return _repository.registrarUsuario(usuario, password);
   }
 
   Future<void> actualizar(User usuario) {

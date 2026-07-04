@@ -49,6 +49,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return ref.read(perfumeViewModelProvider).obtenerPerfumes(widget.nombre);
   }
 
+  Widget _buildImagenLista(Perfume perfume) {
+    final foto = perfume.fotoPath;
+    if (foto != null && foto.isNotEmpty) {
+      if (foto.startsWith('http')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(foto, width: 50, height: 50, fit: BoxFit.cover),
+        );
+      }
+      if (File(foto).existsSync()) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(
+            File(foto),
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          ),
+        );
+      }
+    }
+    return const Icon(Icons.image, size: 40, color: Colors.grey);
+  }
+
+  Widget _buildImagenGrilla(Perfume perfume) {
+    final foto = perfume.fotoPath;
+    if (foto != null && foto.isNotEmpty) {
+      if (foto.startsWith('http')) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          child: Image.network(foto, fit: BoxFit.cover, width: double.infinity),
+        );
+      }
+      if (File(foto).existsSync()) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          child: Image.file(
+            File(foto),
+            fit: BoxFit.cover,
+            width: double.infinity,
+          ),
+        );
+      }
+    }
+    return const Icon(Icons.image, size: 50, color: Colors.grey);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -155,22 +202,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         horizontal: 16,
                         vertical: 8,
                       ),
-                      leading:
-                          (p.fotoPath != null && File(p.fotoPath!).existsSync())
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                File(p.fotoPath!),
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : const Icon(
-                              Icons.image,
-                              size: 40,
-                              color: Colors.grey,
-                            ),
+                      leading: _buildImagenLista(p),
                       title: Text(
                         p.nombre,
                         style: const TextStyle(
@@ -266,26 +298,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     child: Column(
                       children: [
-                        Expanded(
-                          child:
-                              (p.fotoPath != null &&
-                                  File(p.fotoPath!).existsSync())
-                              ? ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                  child: Image.file(
-                                    File(p.fotoPath!),
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.image,
-                                  size: 50,
-                                  color: Colors.grey,
-                                ),
-                        ),
+                        Expanded(child: _buildImagenGrilla(p)),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(

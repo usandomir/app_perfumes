@@ -1,8 +1,8 @@
+import 'package:app_perfumes/core/models/user.dart';
+import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_perfumes/presentation/viewmodels/user_view_model.dart';
-import 'package:app_perfumes/core/models/user.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -18,6 +18,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passController = TextEditingController();
 
   bool _isObscure = true;
+  bool _cargando = false;
 
   @override
   void dispose() {
@@ -28,36 +29,37 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() async {
-    final String name = _nameController.text.trim();
-    final String email = _emailController.text.trim();
-    final String pass = _passController.text.trim();
-    final String ageStr = _ageController.text.trim();
+  Future<void> _handleRegister() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final pass = _passController.text.trim();
+    final ageStr = _ageController.text.trim();
 
     if (name.isEmpty || email.isEmpty || pass.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Por favor, completa los campos obligatorios (*)',
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _mostrarMensaje('Por favor, completa los campos obligatorios (*)');
+      return;
+    }
+    if (!email.contains('@')) {
+      _mostrarMensaje('Ingresa un email valido');
+      return;
+    }
+    if (pass.length < 6) {
+      _mostrarMensaje('La contrasena tiene que tener al menos 6 caracteres');
       return;
     }
 
-    final newUser = User(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      email: email,
-      password: pass,
-      age: int.tryParse(ageStr) ?? 0,
-    );
+    setState(() => _cargando = true);
+    try {
+      final newUser = User(
+        id: '',
+        name: name,
+        email: email,
+        age: int.tryParse(ageStr) ?? 0,
+      );
 
-    await ref.read(userViewModelProvider).registrar(newUser);
+      await ref.read(userViewModelProvider).registrar(newUser, pass);
 
-    if (mounted) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Usuario creado con exito'),
@@ -65,8 +67,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      context.go('/login');
+      context.go('/home/$name');
+    } catch (e) {
+      if (mounted) {
+        _mostrarMensaje(e.toString().replaceFirst('Exception: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _cargando = false);
     }
+  }
+
+  void _mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -76,7 +94,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Crear cuenta'),
+        title: const Text('Crear cuenta'),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
@@ -115,14 +133,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onPressed: () => setState(() => _isObscure = !_isObscure),
                 ),
               ),
-
               const SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _handleRegister,
+                  onPressed: _cargando ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
@@ -130,20 +146,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
-                  child: Text(
-                    'Registrarme',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _cargando
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Registrarme',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               TextButton(
-                onPressed: () => context.go('/login'),
-                child: Text(
+                onPressed: _cargando ? null : () => context.go('/login'),
+                child: const Text(
                   'Cancelar',
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
             ],
