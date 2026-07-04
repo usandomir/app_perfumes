@@ -5,6 +5,7 @@ class Opinion {
   String comentario;
   int puntuacion;
   String fechaIso;
+  String? imagenUrl;
 
   Opinion({
     this.id,
@@ -13,6 +14,7 @@ class Opinion {
     required this.comentario,
     required this.puntuacion,
     required this.fechaIso,
+    this.imagenUrl,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,7 @@ class Opinion {
       'comentario': comentario,
       'puntuacion': puntuacion,
       'fecha_iso': fechaIso,
+      'imagen_url': imagenUrl,
     };
   }
 
@@ -33,6 +36,7 @@ class Opinion {
       comentario: map['comentario'] ?? '',
       puntuacion: map['puntuacion'] as int? ?? 0,
       fechaIso: map['fecha_iso'] ?? '',
+      imagenUrl: map['imagen_url']?.toString(),
     );
   }
 }

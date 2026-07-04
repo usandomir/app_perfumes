@@ -7,6 +7,7 @@ class Perfume {
   String descripcion;
   String? fotoPath;
   double precioUsd;
+  String? creadoPor;
 
   Perfume({
     this.id,
@@ -17,6 +18,7 @@ class Perfume {
     required this.descripcion,
     this.fotoPath,
     required this.precioUsd,
+    this.creadoPor,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,6 +30,7 @@ class Perfume {
       'descripcion': descripcion,
       'foto_path': fotoPath,
       'precio_usd': precioUsd,
+      'creado_por': creadoPor,
     };
   }
 
@@ -41,6 +44,7 @@ class Perfume {
       descripcion: map['descripcion'] ?? '',
       fotoPath: map['foto_path']?.toString(),
       precioUsd: (map['precio_usd'] as num?)?.toDouble() ?? 0.0,
+      creadoPor: map['creado_por']?.toString(),
     );
   }
 }

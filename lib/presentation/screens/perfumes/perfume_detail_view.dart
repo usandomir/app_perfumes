@@ -8,6 +8,7 @@ import 'package:app_perfumes/presentation/screens/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DetailScreen extends ConsumerStatefulWidget {
   final Perfume perfume;
@@ -29,6 +30,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
   int _currentPage = 0;
   int _puntuacion = 5;
   bool _guardandoOpinion = false;
+  String? _imagenOpinionPath;
 
   @override
   void dispose() {
@@ -40,7 +42,10 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
   Future<void> _agregarOpinion() async {
     final perfumeId = widget.perfume.id;
     final comentario = _opinionController.text.trim();
-    if (perfumeId == null || comentario.isEmpty || _guardandoOpinion) return;
+    final tieneImagen =
+        _imagenOpinionPath != null && _imagenOpinionPath!.isNotEmpty;
+    if (perfumeId == null || _guardandoOpinion) return;
+    if (comentario.isEmpty && !tieneImagen) return;
 
     setState(() => _guardandoOpinion = true);
     await ref
@@ -52,15 +57,70 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
             comentario: comentario,
             puntuacion: _puntuacion,
             fechaIso: DateTime.now().toIso8601String(),
+            imagenUrl: _imagenOpinionPath,
           ),
         );
 
     _opinionController.clear();
     setState(() {
       _puntuacion = 5;
+      _imagenOpinionPath = null;
       _guardandoOpinion = false;
     });
     ref.invalidate(opinionesProvider(perfumeId));
+  }
+
+  Future<void> _seleccionarImagenOpinion(ImageSource source) async {
+    final imagen = await ImagePicker().pickImage(source: source);
+    if (imagen == null || !mounted) return;
+    setState(() => _imagenOpinionPath = imagen.path);
+  }
+
+  void _mostrarSelectorImagenOpinion() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Galeria'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _seleccionarImagenOpinion(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Camara'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _seleccionarImagenOpinion(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagenOpinion(String? imagen) {
+    if (imagen == null || imagen.isEmpty) return const SizedBox.shrink();
+    final imageProvider = imagen.startsWith('http')
+        ? NetworkImage(imagen) as ImageProvider
+        : FileImage(File(imagen));
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image(
+          image: imageProvider,
+          height: 110,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
   }
 
   Future<void> _eliminarOpinion(Opinion opinion) async {
@@ -323,7 +383,14 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                         opinion.usuario,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(opinion.comentario),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (opinion.comentario.isNotEmpty)
+                            Text(opinion.comentario),
+                          _buildImagenOpinion(opinion.imagenUrl),
+                        ],
+                      ),
                       trailing: IconButton(
                         tooltip: 'Eliminar opinion',
                         icon: const Icon(Icons.delete_outline),
@@ -359,7 +426,13 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'Agregar opinion',
-              prefixIcon: const Icon(Icons.rate_review_outlined),
+              prefixIcon: IconButton(
+                tooltip: 'Agregar imagen',
+                icon: const Icon(Icons.add_a_photo_outlined),
+                onPressed: _guardandoOpinion
+                    ? null
+                    : _mostrarSelectorImagenOpinion,
+              ),
               suffixIcon: IconButton(
                 icon: _guardandoOpinion
                     ? const SizedBox(

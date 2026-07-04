@@ -1,5 +1,6 @@
 import 'package:app_perfumes/core/models/opinion.dart';
 import 'package:app_perfumes/core/repositories/auth_repository.dart';
+import 'package:app_perfumes/core/repositories/storage_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,14 +8,20 @@ final opinionRepositoryProvider = Provider<OpinionRepository>((ref) {
   return OpinionRepository(
     FirebaseFirestore.instance,
     ref.read(authRepositoryProvider),
+    ref.read(storageRepositoryProvider),
   );
 });
 
 class OpinionRepository {
   final FirebaseFirestore _firestore;
   final AuthRepository _authRepository;
+  final StorageRepository _storageRepository;
 
-  OpinionRepository(this._firestore, this._authRepository);
+  OpinionRepository(
+    this._firestore,
+    this._authRepository,
+    this._storageRepository,
+  );
 
   CollectionReference<Map<String, dynamic>> get _coleccion =>
       _firestore.collection('opiniones');
@@ -32,14 +39,30 @@ class OpinionRepository {
 
   Future<void> registrarOpinion(Opinion opinion) async {
     final uid = _authRepository.usuarioActual?.uid;
-    await _coleccion.add({
+    if (uid == null) throw Exception('No hay usuario logueado.');
+
+    final doc = _coleccion.doc();
+    final imagenUrl = await _storageRepository.subirImagen(
+      pathLocal: opinion.imagenUrl,
+      carpeta: 'opiniones/$uid',
+      nombreArchivo: doc.id,
+    );
+
+    await doc.set({
       ...opinion.toMap(),
+      'imagen_url': imagenUrl,
       'user_id': uid,
       'created_at': FieldValue.serverTimestamp(),
     });
   }
 
   Future<void> eliminarOpinion(String id) async {
+    final uid = _authRepository.usuarioActual?.uid;
+    if (uid == null) return;
+
+    final doc = await _coleccion.doc(id).get();
+    if (!doc.exists || doc.data()?['user_id'] != uid) return;
+
     await _coleccion.doc(id).delete();
   }
 
