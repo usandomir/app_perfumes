@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:app_perfumes/config/settings/currency_formatter.dart';
+import 'package:app_perfumes/database/opinion.dart';
+import 'package:app_perfumes/database/opinion_repository.dart';
+import 'package:app_perfumes/database/perfumes.dart';
+import 'package:app_perfumes/features/home/presentation/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_perfumes/database/opinion.dart';
-import 'package:app_perfumes/database/perfume_repository.dart';
-import 'package:app_perfumes/database/perfumes.dart';
-import 'package:app_perfumes/features/home/presentation/screens/home.dart';
 
 class DetailScreen extends ConsumerStatefulWidget {
   final Perfume perfume;
@@ -43,7 +44,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
 
     setState(() => _guardandoOpinion = true);
     await ref
-        .read(perfumeRepositoryProvider)
+        .read(opinionRepositoryProvider)
         .registrarOpinion(
           Opinion(
             perfumeId: perfumeId,
@@ -66,7 +67,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     final perfumeId = widget.perfume.id;
     if (opinion.id == null || perfumeId == null) return;
 
-    await ref.read(perfumeRepositoryProvider).eliminarOpinion(opinion.id!);
+    await ref.read(opinionRepositoryProvider).eliminarOpinion(opinion.id!);
     ref.invalidate(opinionesProvider(perfumeId));
   }
 
@@ -135,7 +136,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
       child: Column(
         children: [
           const Text(
-            'DESCRIPCION',
+            'DESCRIPCIÓN',
             style: TextStyle(
               color: Colors.grey,
               fontSize: 13,
@@ -223,16 +224,14 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
           const SizedBox(height: 24),
           _buildSpecRow(
             Icons.hourglass_empty,
-            'Duracion en piel:',
+            'Duración en piel:',
             '${widget.perfume.duracionHoras} hs',
           ),
           const SizedBox(height: 24),
           _buildSpecRow(
             Icons.monetization_on_outlined,
             'Precio base:',
-            monedaActual == 'ARS'
-                ? '\$ ${(widget.perfume.precioUsd * 1000).toStringAsFixed(0)} ARS'
-                : 'U\$D ${widget.perfume.precioUsd.toStringAsFixed(2)}',
+            CurrencyFormatter.formatUsd(widget.perfume.precioUsd, monedaActual),
           ),
         ],
       ),
@@ -243,7 +242,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     final perfumeId = widget.perfume.id;
     if (perfumeId == null) {
       return const Center(
-        child: Text('Guarda el perfume antes de agregar opiniones.'),
+        child: Text('Guardá el perfume antes de agregar opiniones.'),
       );
     }
 
@@ -273,7 +272,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                 if (opiniones.isEmpty) {
                   return Center(
                     child: Text(
-                      'Todavia no hay opiniones para este perfume.',
+                      'Todavía no hay opiniones para este perfume.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: colorScheme.onSurface.withValues(alpha: 0.65),
@@ -305,7 +304,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                       ),
                       subtitle: Text(opinion.comentario),
                       trailing: IconButton(
-                        tooltip: 'Eliminar opinion',
+                        tooltip: 'Eliminar opinión',
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () => _eliminarOpinion(opinion),
                       ),
@@ -338,7 +337,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
             minLines: 1,
             maxLines: 3,
             decoration: InputDecoration(
-              hintText: 'Agregar opinion',
+              hintText: 'Agregar opinión',
               prefixIcon: const Icon(Icons.rate_review_outlined),
               suffixIcon: IconButton(
                 icon: _guardandoOpinion

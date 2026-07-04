@@ -1,14 +1,16 @@
 import 'dart:io';
+
+import 'package:app_perfumes/database/perfume_repository.dart';
+import 'package:app_perfumes/database/perfumes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:app_perfumes/database/perfumes.dart';
-import 'package:app_perfumes/database/perfume_repository.dart';
 
 class FormPerfumeScreen extends ConsumerStatefulWidget {
   final Perfume? perfume;
   final String nombreUsuario;
+
   const FormPerfumeScreen({
     super.key,
     this.perfume,
@@ -62,6 +64,35 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
     super.dispose();
   }
 
+  double? _parsePrecio(String value) {
+    return double.tryParse(value.trim().replaceAll(',', '.'));
+  }
+
+  String? _validarTextoObligatorio(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Campo obligatorio';
+    return null;
+  }
+
+  String? _validarPrecio(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Campo obligatorio';
+
+    final precio = _parsePrecio(value);
+    if (precio == null) return 'Ingresá un precio válido';
+    if (precio <= 0) return 'El precio tiene que ser mayor a 0';
+    if (precio > 100000) return 'Revisá el precio ingresado';
+    return null;
+  }
+
+  String? _validarDuracion(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Campo obligatorio';
+
+    final duracion = int.tryParse(value.trim());
+    if (duracion == null) return 'Ingresá una duración en horas';
+    if (duracion <= 0) return 'La duración tiene que ser mayor a 0';
+    if (duracion > 72) return 'La duración no puede superar 72 hs';
+    return null;
+  }
+
   void _seleccionarFoto() {
     showModalBottomSheet(
       context: context,
@@ -109,10 +140,10 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
       id: widget.perfume?.id,
       nombre: _nombre.text.trim(),
       disenador: _disenador.text.trim(),
-      duracionHoras: int.tryParse(_duracion.text) ?? 0,
+      duracionHoras: int.parse(_duracion.text.trim()),
       climaRecomendado: _clima.text.trim(),
       descripcion: _descripcion.text.trim(),
-      precioUsd: double.tryParse(_precio.text) ?? 0.0,
+      precioUsd: _parsePrecio(_precio.text)!,
       fotoPath: _fotoSeleccionadaPath,
     );
 
@@ -188,24 +219,25 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
                 _precio,
                 'Precio (USD)',
                 Icons.attach_money,
-                TextInputType.number,
+                type: const TextInputType.numberWithOptions(decimal: true),
+                validator: _validarPrecio,
               ),
               _buildInput(
                 _duracion,
                 'Duración (hs)',
                 Icons.access_time,
-                TextInputType.number,
+                type: TextInputType.number,
+                validator: _validarDuracion,
               ),
               _buildInput(_clima, 'Clima', Icons.wb_sunny),
               _buildInput(
                 _descripcion,
                 'Descripción',
                 Icons.description,
-                TextInputType.text,
-                2,
+                type: TextInputType.text,
+                lines: 2,
               ),
               const SizedBox(height: 20),
-
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -218,7 +250,6 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
                   child: const Text('Guardar'),
                 ),
               ),
-
               if (esEdicion) ...[
                 const SizedBox(height: 10),
                 SizedBox(
@@ -278,7 +309,6 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
                   ),
                 ),
               ],
-
               const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
@@ -298,22 +328,24 @@ class _FormPerfumeScreenState extends ConsumerState<FormPerfumeScreen> {
   Widget _buildInput(
     TextEditingController ctrl,
     String label,
-    IconData icon, [
+    IconData icon, {
     TextInputType type = TextInputType.text,
     int lines = 1,
-  ]) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: TextFormField(
-      controller: ctrl,
-      keyboardType: type,
-      maxLines: lines,
-      validator: (val) =>
-          (val == null || val.trim().isEmpty) ? 'Campo obligatorio' : null,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.primary),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: ctrl,
+        keyboardType: type,
+        maxLines: lines,
+        validator: validator ?? _validarTextoObligatorio,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.primary),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

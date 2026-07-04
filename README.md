@@ -1,38 +1,16 @@
-# App Perfumes
+ï»¿# app_perfumes
 
-Aplicación Flutter para gestionar una colección personal de perfumes.
+A new Flutter project.
 
-## Funcionalidad principal
+## Getting Started
 
-- Registro e inicio de sesión de usuarios locales.
-- Catálogo de perfumes por usuario.
-- Alta, edición y eliminación de perfumes.
-- Vista en grilla, lista y modo compacto.
-- Detalle con descripción, especificaciones y opiniones asociadas al perfume.
-- Selección de imagen desde cámara o galería.
-- Preferencias de tema y moneda.
+This project is a starting point for a Flutter application.
 
-## Stack técnico
+A few resources to get you started if this is your first Flutter project:
 
-- Flutter y Dart.
-- Riverpod para estado.
-- GoRouter para navegación.
-- Sqflite para persistencia local.
-- Shared Preferences para datos simples de sesión y preferencias.
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-## Cómo levantar el proyecto
-
-```powershell
-flutter pub get
-flutter run
-```
-
-Para revisar el análisis estático:
-
-```powershell
-flutter analyze
-```
-
-## Notas de desarrollo
-
-La persistencia está separada en repositorios para facilitar una futura migración a Firebase. Por ahora la app trabaja con SQLite local, pero las pantallas quedan desacopladas de la implementación concreta de datos.
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

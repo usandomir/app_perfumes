@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_perfumes/config/settings/currency_formatter.dart';
 import 'package:app_perfumes/config/theme/theme.dart';
 import 'package:app_perfumes/features/home/presentation/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _vistaSeleccionada = 'Grilla';
 
   final List<String> _idiomas = ['Español', 'English', 'Português'];
-  final List<String> _monedas = ['ARS (\$)', 'USD (U\$S)', 'EUR (€)'];
+  final List<String> _monedas = CurrencyFormatter.labels;
   final List<String> _vistas = ['Lista', 'Grilla', 'Compacto'];
 
   @override
@@ -35,6 +36,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           prefs.getString('monedaSeleccionada') ?? 'USD (U\$S)';
       _vistaSeleccionada = prefs.getString('vistaSeleccionada') ?? 'Compacto';
     });
+    ref.read(currencyProvider.notifier).state = CurrencyFormatter.codeFromLabel(
+      _monedaSeleccionada,
+    );
+    ref.read(vistaSettingsProvider.notifier).state = _vistaSeleccionada;
   }
 
   void _irAlHome() {
@@ -84,7 +89,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: Column(
           children: [
-            // Icono de configuración
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -126,7 +130,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: 6,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const Divider(height: 24, indent: 16, endIndent: 16),
                     itemBuilder: (context, index) {
                       if (index == 0) {
@@ -155,8 +159,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             colorDinamico: colorDinamico,
                             onChanged: (v) {
                               setState(() => _monedaSeleccionada = v!);
-                              ref.read(currencyProvider.notifier).state = v!
-                                  .substring(0, 3);
+                              ref.read(currencyProvider.notifier).state =
+                                  CurrencyFormatter.codeFromLabel(v!);
                             },
                           ),
                         );

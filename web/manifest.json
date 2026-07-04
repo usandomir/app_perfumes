@@ -1,11 +1,11 @@
-{
+﻿{
     "name": "app_perfumes",
     "short_name": "app_perfumes",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Catalogo personal de perfumes.",
+    "description": "Catálogo personal de perfumes.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -33,6 +33,4 @@
         }
     ]
 }
-
-
 

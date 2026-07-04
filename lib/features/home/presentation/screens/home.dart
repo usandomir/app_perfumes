@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:app_perfumes/database/perfumes.dart';
+import 'package:app_perfumes/config/settings/currency_formatter.dart';
 import 'package:app_perfumes/database/perfume_repository.dart';
 import 'package:app_perfumes/features/home/presentation/widget/drawer_menu.dart';
 
 final vistaSettingsProvider = StateProvider<String>((ref) => 'Grilla');
-final currencyProvider = StateProvider<String>((ref) => 'ARS');
+final currencyProvider = StateProvider<String>((ref) => CurrencyFormatter.usd);
 
 class HomeScreen extends ConsumerStatefulWidget {
   final String nombre;
@@ -21,21 +23,32 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isRefreshing = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _cargarAjustesPersistidos();
+  }
+
+  Future<void> _cargarAjustesPersistidos() async {
+    final prefs = await SharedPreferences.getInstance();
+    final monedaGuardada = prefs.getString('monedaSeleccionada');
+    final vistaGuardada = prefs.getString('vistaSeleccionada');
+
+    if (!mounted) return;
+    if (monedaGuardada != null) {
+      ref.read(currencyProvider.notifier).state =
+          CurrencyFormatter.codeFromLabel(monedaGuardada);
+    }
+    if (vistaGuardada != null) {
+      ref.read(vistaSettingsProvider.notifier).state = vistaGuardada;
+    }
+  }
+
   Future<List<Perfume>> _cargarPerfumes() async {
     if (_isRefreshing) await Future.delayed(const Duration(seconds: 2));
     return ref
         .read(perfumeRepositoryProvider)
         .obtenerPerfumesPorUsuario(widget.nombre);
-  }
-
-  String _obtenerPrecioFormateado(double precioUsd, String moneda) {
-    if (moneda == 'ARS') {
-      return '\$ ${(precioUsd * 1000).toStringAsFixed(0)}';
-    } else if (moneda == 'EUR') {
-      return '€ ${(precioUsd * 0.92).toStringAsFixed(2)}';
-    } else {
-      return 'U\$S ${precioUsd.toStringAsFixed(2)}';
-    }
   }
 
   @override
@@ -90,7 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Icon(
                         Icons.shopping_bag_outlined,
                         size: 80,
-                        color: colorScheme.primary.withOpacity(0.6),
+                        color: colorScheme.primary.withValues(alpha: 0.6),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -125,7 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 itemCount: listaPerfumes.length,
                 itemBuilder: (context, index) {
                   final p = listaPerfumes[index];
-                  final precioMostrado = _obtenerPrecioFormateado(
+                  final precioMostrado = CurrencyFormatter.formatUsd(
                     p.precioUsd,
                     moneda,
                   );
@@ -180,7 +193,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               Icon(
                                 Icons.access_time,
                                 size: 16,
-                                color: colorScheme.primary.withOpacity(0.7),
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -191,7 +206,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               Icon(
                                 Icons.wb_sunny_outlined,
                                 size: 16,
-                                color: colorScheme.primary.withOpacity(0.7),
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -234,7 +251,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               itemCount: listaPerfumes.length,
               itemBuilder: (context, index) {
                 final p = listaPerfumes[index];
-                final precioMostrado = _obtenerPrecioFormateado(
+                final precioMostrado = CurrencyFormatter.formatUsd(
                   p.precioUsd,
                   moneda,
                 );
