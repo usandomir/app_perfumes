@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:app_perfumes/features/auth/presentation/screens/login.dart';
-import 'package:app_perfumes/features/auth/presentation/screens/register.dart';
-import 'package:app_perfumes/database/perfumes.dart';
-import 'package:app_perfumes/features/detail/detail.dart';
-import 'package:app_perfumes/features/home/presentation/screens/home.dart';
-import 'package:app_perfumes/features/edit/editar.dart';
-import 'package:app_perfumes/features/profile/presentation/screens/perfil.dart';
-import 'package:app_perfumes/config/settings/settings.dart';
+import 'package:app_perfumes/views/auth/login_view.dart';
+import 'package:app_perfumes/views/auth/register_view.dart';
+import 'package:app_perfumes/models/perfume.dart';
+import 'package:app_perfumes/views/perfumes/perfume_detail_view.dart';
+import 'package:app_perfumes/views/home/home_view.dart';
+import 'package:app_perfumes/views/perfumes/perfume_form_view.dart';
+import 'package:app_perfumes/views/profile/profile_view.dart';
+import 'package:app_perfumes/views/settings/settings_view.dart';
 
 class RouterNotifier {
   static Future<String> getInitialLocation() async => '/login';

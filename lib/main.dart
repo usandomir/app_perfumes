@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_perfumes/config/router/app_router.dart';
-import 'package:app_perfumes/config/theme/presentation/providers/theme_provider.dart';
-import 'package:app_perfumes/config/theme/theme.dart';
+import 'package:app_perfumes/viewmodels/theme_view_model.dart';
+import 'package:app_perfumes/config/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
