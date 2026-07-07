@@ -12,3 +12,6 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+# debug.keystore es intencional: fijo para que el SHA-1 de Google Sign-In
+# sea el mismo sin importar la maquina que compile.
+!app/debug.keystore

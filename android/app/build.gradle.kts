@@ -33,6 +33,18 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        getByName("debug") {
+            // Keystore fijo versionado en el repo: mismo SHA-1 sin importar la
+            // maquina que compile, para que Google Sign-In funcione en cualquier lado.
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeType = "PKCS12"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

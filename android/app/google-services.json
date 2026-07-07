@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "116049642276-u03o8206slqgushcc2neecl986kl4htg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.app_perfumes",
+            "certificate_hash": "cf38155a350813ccb75898a829444f0a8e62714c"
+          }
+        },
+        {
           "client_id": "116049642276-20p5emani5d4b1o2fdn3kmq1fde4g126.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "116049642276-20p5emani5d4b1o2fdn3kmq1fde4g126.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "116049642276-37490nnpsmj2kdl3q9tk5fiokpg8m4t8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.primerParcial"
+              }
             }
           ]
         }
