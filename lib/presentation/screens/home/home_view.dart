@@ -49,6 +49,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return ref.read(perfumeViewModelProvider).obtenerPerfumes(widget.nombre);
   }
 
+  Widget _buildDatoLista({
+    required IconData icon,
+    required String texto,
+    required Color color,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: color.withValues(alpha: 0.7)),
+        const SizedBox(width: 4),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 120),
+          child: Text(
+            texto,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 13),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildImagenLista(Perfume perfume) {
     final foto = perfume.fotoPath;
     if (foto != null && foto.isNotEmpty) {
@@ -197,66 +220,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      leading: _buildImagenLista(p),
-                      title: Text(
-                        p.nombre,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            p.disenador,
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                size: 16,
-                                color: colorScheme.primary.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${p.duracionHoras} hs',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                              const SizedBox(width: 16),
-                              Icon(
-                                Icons.wb_sunny_outlined,
-                                size: 16,
-                                color: colorScheme.primary.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                p.climaRecomendado,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        precioMostrado,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: colorScheme.primary,
-                        ),
-                      ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
                       onTap: () async {
                         await context.push(
                           '/detail/${widget.nombre}',
@@ -264,6 +229,73 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         );
                         setState(() {});
                       },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildImagenLista(p),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    p.nombre,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    p.disenador,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 12,
+                                    runSpacing: 6,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      _buildDatoLista(
+                                        icon: Icons.access_time,
+                                        texto: '${p.duracionHoras} hs',
+                                        color: colorScheme.primary,
+                                      ),
+                                      _buildDatoLista(
+                                        icon: Icons.wb_sunny_outlined,
+                                        texto: p.climaRecomendado,
+                                        color: colorScheme.primary,
+                                      ),
+                                      Text(
+                                        precioMostrado,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 },
