@@ -195,29 +195,25 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     if (foto == null || foto.isEmpty) {
       return _buildPlaceholderImagen(colorScheme);
     }
-    if (foto.startsWith('http')) {
-      return ClipRRect(
+
+    final imageWidget = foto.startsWith('http')
+        ? Image.network(foto, fit: BoxFit.contain)
+        : File(foto).existsSync()
+        ? Image.file(File(foto), fit: BoxFit.contain)
+        : null;
+
+    if (imageWidget == null) return _buildPlaceholderImagen(colorScheme);
+
+    return Container(
+      height: 220,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        child: Image.network(
-          foto,
-          height: 180,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-    if (File(foto).existsSync()) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.file(
-          File(foto),
-          height: 180,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-    return _buildPlaceholderImagen(colorScheme);
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Center(child: imageWidget),
+    );
   }
 
   Widget _buildPlaceholderImagen(ColorScheme colorScheme) {
